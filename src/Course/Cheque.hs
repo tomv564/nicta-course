@@ -323,5 +323,10 @@ fromChar _ =
 dollars ::
   Chars
   -> Chars
-dollars =
-  error "todo: Course.Cheque#dollars"
+dollars x =
+  error "asdf"
+      -- let showDollarsCents d c = d ++ " dollars and " ++ c ++ " cents"
+      -- in case x of
+      --     D1 d -> showDollarsCents (showDigit d) (showDigit 0)
+      --     _ -> showDollarsCents (showDigit 0) (showDigit 0)
+

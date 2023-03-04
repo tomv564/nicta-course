@@ -46,8 +46,7 @@ class Apply f => Applicative f where
   (a -> b)
   -> f a
   -> f b
-(<$>) =
-  error "todo: Course.Applicative#(<$>)"
+(<$>) f a = pure f <*> a
 
 -- | Insert into Id.
 --
@@ -56,8 +55,8 @@ instance Applicative Id where
   pure ::
     a
     -> Id a
-  pure =
-    error "todo: Course.Applicative pure#instance Id"
+  pure x = Id x
+    -- error "todo: Course.Applicative pure#instance Id"
 
 -- | Insert into a List.
 --
@@ -66,8 +65,8 @@ instance Applicative List where
   pure ::
     a
     -> List a
-  pure =
-    error "todo: Course.Applicative pure#instance List"
+  pure x = ( x :. Nil )
+    -- error "todo: Course.Applicative pure#instance List"
 
 -- | Insert into an Optional.
 --
@@ -76,8 +75,8 @@ instance Applicative Optional where
   pure ::
     a
     -> Optional a
-  pure =
-    error "todo: Course.Applicative pure#instance Optional"
+  pure x =
+    Full x
 
 -- | Insert into a constant function.
 --
@@ -86,8 +85,7 @@ instance Applicative ((->) t) where
   pure ::
     a
     -> ((->) t a)
-  pure =
-    error "todo: Course.Applicative pure#((->) t)"
+  pure x = const x
 
 -- | Sequences a list of structures to a structure of list.
 --
@@ -109,8 +107,11 @@ sequence ::
   Applicative f =>
   List (f a)
   -> f (List a)
-sequence =
-  error "todo: Course.Applicative#sequence"
+sequence xs = foldRight (lift2 (:.)) (pure Nil) xs
+  -- run append in structure,
+  -- error "todo: Course.Applicative#sequence"
+
+
 
 -- | Replicate an effect a given number of times.
 --
@@ -133,8 +134,9 @@ replicateA ::
   Int
   -> f a
   -> f (List a)
-replicateA =
-  error "todo: Course.Applicative#replicateA"
+replicateA n = sequence . replicate n
+ -- note: simply replicate <$> pure n <*> f is not enough, see last example.
+  -- error "todo: Course.Applicative#replicateA"
 
 -- | Filter a list with a predicate that produces an effect.
 --
@@ -161,8 +163,13 @@ filtering ::
   (a -> f Bool)
   -> List a
   -> f (List a)
-filtering =
-  error "todo: Course.Applicative#filtering"
+filtering f l = foldRight p (pure Nil) l
+  where
+    p x acc =  (\o -> if o then (x :.) else id) <$> (f x) <*> acc
+    -- x is not in Id, but (f x ) is. so is acc.
+    -- apply a function that glues together the rest:
+    -- it needs to return two partial functions to acc: append x, or return self (id)
+
 
 -----------------------
 -- SUPPORT LIBRARIES --

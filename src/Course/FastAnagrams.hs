@@ -14,8 +14,13 @@ fastAnagrams ::
   Chars
   -> Filename
   -> IO (List Chars)
-fastAnagrams =
-  error "todo: Course.FastAnagrams#fastAnagrams"
+fastAnagrams word file =
+    (flip (filter . flip S.member) (permutations word) . S.fromList . hlist . lines) <$> readFile file
+    -- note: so much argument flipping to get a clean apply. would prefer do notation or let bindings
+    -- let set = ( S.fromList . hlist . lines ) <$> (readFile file)
+    -- in filter (\w -> S.member set w) (permutations word)
+    -- (filter (S.member (permutations word) (S.fromList . hlist . lines))) <$> (readFile dict)
+  --error "todo: Course.FastAnagrams#fastAnagrams"
 
 newtype NoCaseString =
   NoCaseString {

@@ -84,7 +84,12 @@ data Op =
 convertInteractive ::
   IO ()
 convertInteractive =
-  error "todo: Course.Interactive#convertInteractive"
+    putStr "Please enter some text: " >-
+    getLine >>= \l ->
+    putStrLn (toUpper <$> l) >-
+    putStrLn ""
+
+  -- error "todo: Course.Interactive#convertInteractive"
 
 -- |
 --
@@ -112,7 +117,14 @@ convertInteractive =
 reverseInteractive ::
   IO ()
 reverseInteractive =
-  error "todo: Course.Interactive#reverseInteractive"
+  putStrLn "Enter a file name to reverse:" >-
+  getLine >>= \i ->
+  putStrLn "Enter the file name to write to:" >-
+  getLine >>= \o ->
+  readFile i >>= \c ->
+  writeFile o (reverse c)
+
+  -- error "todo: Course.Interactive#reverseInteractive"
 
 -- |
 --
@@ -138,7 +150,15 @@ reverseInteractive =
 encodeInteractive ::
   IO ()
 encodeInteractive =
-  error "todo: Course.Interactive#encodeInteractive"
+  let encode t = t >>= \c -> case c of -- >>=  on List is flatMap
+                          ' ' -> "%20"
+                          '\t' -> "%09"
+                          '"' -> "%22"
+                          _ -> c :. Nil -- because must be string
+  in
+    putStr "Enter a string to urlencode:" >-
+    getLine >>= \text ->
+    putStrLn (encode text)
 
 interactive ::
   IO ()

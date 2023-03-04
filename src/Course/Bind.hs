@@ -68,8 +68,9 @@ infixr 1 =<<
   f (a -> b)
   -> f a
   -> f b
-(<*>) =
-  error "todo: Course.Bind#(<*>)"
+(<*>) f x = (<$> x) =<< f
+  -- confused, x was not already in f ?
+  -- error "todo: Course.Bind#(<*>)"
 
 infixl 4 <*>
 
@@ -82,8 +83,8 @@ instance Bind Id where
     (a -> Id b)
     -> Id a
     -> Id b
-  (=<<) =
-    error "todo: Course.Bind (=<<)#instance Id"
+  (=<<) = bindId
+    -- error "todo: Course.Bind (=<<)#instance Id"
 
 -- | Binds a function on a List.
 --
@@ -94,8 +95,7 @@ instance Bind List where
     (a -> List b)
     -> List a
     -> List b
-  (=<<) =
-    error "todo: Course.Bind (=<<)#instance List"
+  (=<<) = flatMap -- see type parameters, same as Apply?!
 
 -- | Binds a function on an Optional.
 --
@@ -106,8 +106,7 @@ instance Bind Optional where
     (a -> Optional b)
     -> Optional a
     -> Optional b
-  (=<<) =
-    error "todo: Course.Bind (=<<)#instance Optional"
+  (=<<) = bindOptional
 
 -- | Binds a function on the reader ((->) t).
 --
@@ -118,8 +117,10 @@ instance Bind ((->) t) where
     (a -> ((->) t b))
     -> ((->) t a)
     -> ((->) t b)
-  (=<<) =
-    error "todo: Course.Bind (=<<)#instance ((->) t)"
+  (=<<) g h = \x -> g (h x) x
+    -- from the example: 119 = 70 + 49 = (10 * 7) + (7 * 7)
+    -- so: apply g (*) to x and to ( h x) ??
+    --error "todo: Course.Bind (=<<)#instance ((->) t)"
 
 -- | Flattens a combined structure to a single structure.
 --
@@ -138,8 +139,9 @@ join ::
   Bind f =>
   f (f a)
   -> f a
-join =
-  error "todo: Course.Bind#join"
+join x = id =<< x
+  -- bindOptional id
+  -- this is like flatten for lists
 
 -- | Implement a flipped version of @(=<<)@, however, use only
 -- @join@ and @(<$>)@.
@@ -152,8 +154,9 @@ join =
   f a
   -> (a -> f b)
   -> f b
-(>>=) =
-  flip (=<<)
+(>>=) m f = join (f <$> m)
+  -- take a value in a context and a function that creates more context,
+  -- and apply function to value but extract value from double context.
 
 infixl 1 >>=
 
@@ -168,8 +171,9 @@ infixl 1 >>=
   -> (a -> f b)
   -> a
   -> f c
-(<=<) =
-  error "todo: Course.Bind#(<=<)"
+(<=<) f1 f2 x = f1 =<< f2 x --join (f1 <$> (f2 x))
+  -- bind is apply-and-join?
+  -- error "todo: Course.Bind#(<=<)"
 
 infixr 1 <=<
 

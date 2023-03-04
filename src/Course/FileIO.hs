@@ -62,8 +62,11 @@ the contents of c
 -- /Tip:/ use @getArgs@ and @run@
 main ::
   IO ()
-main =
-  error "todo: Course.FileIO#main"
+main = do
+  fileName <- (headOr "") <$> getArgs
+  if fileName == ""
+    then putStrLn "Please provide a valid path to a file"
+    else (getFile fileName) >>= \(_, contents) -> run contents
 
 type FilePath =
   Chars
@@ -72,31 +75,43 @@ type FilePath =
 run ::
   Chars
   -> IO ()
-run =
-  error "todo: Course.FileIO#run"
+run contents = getFiles (lines contents) >>= printFiles
+
+-- readFile is IO Chars.
+ -- error "todo: Course.FileIO#run"
+
+-- getFiles needs a List FilePath.
 
 getFiles ::
   List FilePath
   -> IO (List (FilePath, Chars))
-getFiles =
-  error "todo: Course.FileIO#getFiles"
+getFiles ps =
+  sequence (map getFile ps)
+  --error "todo: Course.FileIO#getFiles"
 
 getFile ::
   FilePath
   -> IO (FilePath, Chars)
-getFile =
-  error "todo: Course.FileIO#getFile"
+getFile path = readFile path >>= \contents -> return (path, contents)
+-- stolen, below was mine:
+  -- (,) <$> pure path <*> readFile path
+--   -- readFile is already in IO
+  -- bring path into IO as well, then apply (,) to it
 
 printFiles ::
   List (FilePath, Chars)
   -> IO ()
-printFiles =
-  error "todo: Course.FileIO#printFiles"
+printFiles fs = sequence (map (uncurry printFile) fs) >> return ()
+-- todo: sequence converts List () to ()
+  -- error "todo: Course.FileIO#printFiles"
+-- printFiles files = map printFile files
+
 
 printFile ::
   FilePath
   -> Chars
   -> IO ()
-printFile =
-  error "todo: Course.FileIO#printFile"
+printFile path contents =
+  putStrLn ("============ " ++ path) >>
+  putStrLn contents
 

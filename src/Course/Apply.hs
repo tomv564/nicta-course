@@ -35,8 +35,8 @@ instance Apply Id where
     Id (a -> b)
     -> Id a
     -> Id b
-  (<*>) =
-    error "todo: Course.Apply (<*>)#instance Id"
+  (<*>) = mapId . runId
+    -- error "todo: Course.Apply (<*>)#instance Id"
 
 -- | Implement @Apply@ instance for @List@.
 --
@@ -47,8 +47,8 @@ instance Apply List where
     List (a -> b)
     -> List a
     -> List b
-  (<*>) =
-    error "todo: Course.Apply (<*>)#instance List"
+  (<*>) fs xs = flatMap (\f -> map f xs) fs
+    -- error "todo: Course.Apply (<*>)#instance List"
 
 -- | Implement @Apply@ instance for @Optional@.
 --
@@ -65,8 +65,8 @@ instance Apply Optional where
     Optional (a -> b)
     -> Optional a
     -> Optional b
-  (<*>) =
-    error "todo: Course.Apply (<*>)#instance Optional"
+  (<*>) = applyOptional
+    --error "todo: Course.Apply (<*>)#instance Optional"
 
 -- | Implement @Apply@ instance for reader.
 --
@@ -89,8 +89,10 @@ instance Apply ((->) t) where
     ((->) t (a -> b))
     -> ((->) t a)
     -> ((->) t b)
-  (<*>) =
-    error "todo: Course.Apply (<*>)#instance ((->) t)"
+  (<*>) f g =
+      \x -> (f x) . g $ x
+    -- ((+) <*> (+10)) 3 becomes ((+ 3) ( 3 + 10) )
+    -- so: apply f to argument, then apply to g, then apply to argument again.
 
 -- | Apply a binary function in the environment.
 --
@@ -117,8 +119,8 @@ lift2 ::
   -> f a
   -> f b
   -> f c
-lift2 =
-  error "todo: Course.Apply#lift2"
+lift2 f a b = f <$> a <*> b
+ -- raise function into context, then apply to parameters.
 
 -- | Apply a ternary function in the environment.
 --
@@ -149,8 +151,8 @@ lift3 ::
   -> f b
   -> f c
   -> f d
-lift3 =
-  error "todo: Course.Apply#lift2"
+lift3 f a b c = f <$> a <*> b <*> c
+  -- error "todo: Course.Apply#lift2"
 
 -- | Apply a quaternary function in the environment.
 --
@@ -182,8 +184,8 @@ lift4 ::
   -> f c
   -> f d
   -> f e
-lift4 =
-  error "todo: Course.Apply#lift4"
+lift4 f a b c d = f <$> a <*> b <*> c <*> d
+  -- error "todo: Course.Apply#lift4"
 
 -- | Sequence, discarding the value of the first argument.
 -- Pronounced, right apply.
@@ -208,8 +210,8 @@ lift4 =
   f a
   -> f b
   -> f b
-(*>) =
-  error "todo: Course.Apply#(*>)"
+(*>) a b = (flip const) <$> a <*> b
+  -- const evaluates but ignores input argument.
 
 -- | Sequence, discarding the value of the second argument.
 -- Pronounced, left apply.
@@ -234,8 +236,8 @@ lift4 =
   f b
   -> f a
   -> f b
-(<*) =
-  error "todo: Course.Apply#(<*)"
+(<*) a b = const <$> a <*> b
+  -- can use lift2 here.
 
 -----------------------
 -- SUPPORT LIBRARIES --
